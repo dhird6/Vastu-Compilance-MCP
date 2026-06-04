@@ -1,0 +1,30 @@
+services:
+  vastu-mcp-server:
+    build: .
+    container_name: vastu-mcp-server
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  postgres:
+    profiles: ["db"]
+    image: pgvector/pgvector:pg16
+    container_name: vastu-postgres
+    environment:
+      POSTGRES_USER: vastu
+      POSTGRES_PASSWORD: vastu
+      POSTGRES_DB: vastu
+    ports:
+      - "5432:5432"
+    volumes:
+      - vastu_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vastu -d vastu"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  vastu_pg_data:

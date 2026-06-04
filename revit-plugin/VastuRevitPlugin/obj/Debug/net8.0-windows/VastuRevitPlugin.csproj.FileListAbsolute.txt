@@ -1,0 +1,12 @@
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\bin\Debug\net8.0-windows\VastuRevitPlugin.deps.json
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\bin\Debug\net8.0-windows\VastuRevitPlugin.dll
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\bin\Debug\net8.0-windows\VastuRevitPlugin.pdb
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\VastuRevitPlugin.csproj.AssemblyReference.cache
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\VastuRevitPlugin.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\VastuRevitPlugin.AssemblyInfoInputs.cache
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\VastuRevitPlugin.AssemblyInfo.cs
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\VastuRevitPlugin.csproj.CoreCompileInputs.cache
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\VastuRevitPlugin.dll
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\refint\VastuRevitPlugin.dll
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\VastuRevitPlugin.pdb
+c:\Users\varkada\OneDrive - Autodesk\Desktop\Plugin\Vastu Compilance MCP\revit-plugin\VastuRevitPlugin\obj\Debug\net8.0-windows\ref\VastuRevitPlugin.dll

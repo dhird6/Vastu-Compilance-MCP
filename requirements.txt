@@ -1,0 +1,20 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+httpx
+pyyaml
+python-json-logger
+prometheus-client
+numpy
+shapely
+openai
+mcp
+sqlalchemy[asyncio]
+asyncpg
+pytest
+pytest-asyncio
+
+# Optional BIM/CAD parsers (install when needed):
+# ezdxf
+# ifcopenshell

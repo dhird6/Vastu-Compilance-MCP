@@ -1,0 +1,65 @@
+version: 1
+description: Deterministic Vastu rules for residential floor plans.
+rules:
+  - id: VR-001
+    title: Kitchen preferred in south-east
+    room_type: kitchen
+    preferred_zones: [south_east, east]
+    avoid_zones: [north_east, south_west]
+    min_area: 60
+    severity: high
+    score_impact: 10
+
+  - id: VR-002
+    title: Master bedroom preferred in south-west
+    room_type: master_bedroom
+    preferred_zones: [south_west, west]
+    avoid_zones: [north_east]
+    min_area: 120
+    severity: high
+    score_impact: 9
+
+  - id: VR-003
+    title: Pooja room preferred in north-east
+    room_type: pooja
+    preferred_zones: [north_east, east]
+    avoid_zones: [south_west]
+    min_area: 25
+    severity: medium
+    score_impact: 6
+
+  - id: VR-004
+    title: Toilet should avoid north-east
+    room_type: toilet
+    preferred_zones: [north_west, west, south]
+    avoid_zones: [north_east]
+    min_area: 18
+    severity: medium
+    score_impact: 6
+
+  - id: VR-005
+    title: Living room should receive eastern or northern energy
+    room_type: living_room
+    preferred_zones: [north, north_east, east]
+    avoid_zones: [south_west]
+    min_area: 140
+    severity: low
+    score_impact: 4
+
+  - id: VR-006
+    title: Main entrance preferred in north, east, or north-east
+    room_type: entrance
+    preferred_zones: [north, north_east, east]
+    avoid_zones: [south_west, south]
+    min_area: 12
+    severity: high
+    score_impact: 8
+
+  - id: VR-007
+    title: Staircase should avoid north-east and center brahmasthan
+    room_type: staircase
+    preferred_zones: [south, south_west, west]
+    avoid_zones: [north_east]
+    min_area: 20
+    severity: medium
+    score_impact: 7

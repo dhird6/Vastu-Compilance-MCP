@@ -1,0 +1,87 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+  <PropertyGroup>
+
+    <TargetFramework>net8.0-windows</TargetFramework>
+
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <Nullable>enable</Nullable>
+
+    <LangVersion>latest</LangVersion>
+
+    <OutputType>Library</OutputType>
+
+    <PlatformTarget>x64</PlatformTarget>
+
+    <Platforms>x64</Platforms>
+
+    <AssemblyName>VastuRevitPlugin</AssemblyName>
+
+    <RootNamespace>VastuRevitPlugin</RootNamespace>
+
+  </PropertyGroup>
+
+
+
+  <PropertyGroup>
+
+    <REVIT_API_DIR Condition="'$(REVIT_API_DIR)' == ''">C:\Program Files\Autodesk\Revit 2026</REVIT_API_DIR>
+
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+
+    <Reference Include="RevitAPI">
+
+      <HintPath>$(REVIT_API_DIR)\RevitAPI.dll</HintPath>
+
+      <Private>false</Private>
+
+    </Reference>
+
+    <Reference Include="RevitAPIUI">
+
+      <HintPath>$(REVIT_API_DIR)\RevitAPIUI.dll</HintPath>
+
+      <Private>false</Private>
+
+    </Reference>
+
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+
+  </ItemGroup>
+
+
+
+  <Target Name="DeployAddin" AfterTargets="Build">
+
+    <PropertyGroup>
+
+      <AddinFolder>$(APPDATA)\Autodesk\Revit\Addins\2026</AddinFolder>
+
+    </PropertyGroup>
+
+    <MakeDir Directories="$(AddinFolder)" />
+
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(AddinFolder)" />
+
+    <Copy SourceFiles="$(ProjectDir)deploy\VastuRevitPlugin.addin" DestinationFolder="$(AddinFolder)" />
+
+  </Target>
+
+
+
+</Project>
+
+

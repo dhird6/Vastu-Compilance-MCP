@@ -1,0 +1,30 @@
+version: 1
+description: Curated Vedic and Puranic guidance references for explainable vastu recommendations.
+entries:
+  - source: "Matsya Purana - Vastu Vidya"
+    principle: "Kitchen and agni placement"
+    room_types: ["kitchen"]
+    preferred_zones: ["south_east", "east"]
+    avoid_zones: ["north_east"]
+    guidance: "Agni-related functions are favored in the south-east quadrant."
+
+  - source: "Vishwakarma Prakash"
+    principle: "Master room grounding"
+    room_types: ["master_bedroom"]
+    preferred_zones: ["south_west", "west"]
+    avoid_zones: ["north_east"]
+    guidance: "Primary family sleeping spaces are traditionally stabilized in south-west."
+
+  - source: "Brihat Samhita"
+    principle: "Sacred space orientation"
+    room_types: ["pooja"]
+    preferred_zones: ["north_east", "east"]
+    avoid_zones: ["south_west"]
+    guidance: "Prayer spaces are traditionally advised near the north-east for spiritual intent."
+
+  - source: "Agni Purana (traditional vastu interpretations)"
+    principle: "Water and sanitation separation"
+    room_types: ["toilet"]
+    preferred_zones: ["north_west", "west", "south"]
+    avoid_zones: ["north_east"]
+    guidance: "Sanitation spaces are generally advised away from the north-east zone."

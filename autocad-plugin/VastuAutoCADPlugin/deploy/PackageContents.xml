@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage
+  SchemaVersion="1.0"
+  AutodeskProduct="AutoCAD"
+  Name="VastuAutoCADPlugin"
+  AppVersion="1.0.0"
+  ProductCode="{A5F2E6C3-1D8A-4B95-BD92-5A29A9F6B31D}"
+  Description="Vastu Compliance MCP integration for AutoCAD."
+  Author="Vastu Compliance Team">
+  <Components Description="Vastu AutoCAD plugin">
+    <RuntimeRequirements
+      OS="Win64"
+      Platform="AutoCAD*"
+      SeriesMin="R24.0"
+      SeriesMax="R25.9" />
+    <ComponentEntry
+      AppName="VastuAutoCADPlugin"
+      ModuleName="./Contents/Windows/VastuAutoCADPlugin.dll"
+      AppDescription="Analyze active layout for Vastu compliance"
+      LoadOnAutoCADStartup="True" />
+  </Components>
+</ApplicationPackage>

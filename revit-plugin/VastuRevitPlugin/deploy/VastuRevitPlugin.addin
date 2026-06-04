@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+
+<RevitAddIns>
+
+  <AddIn Type="Application">
+
+    <Name>VastuRevitPlugin</Name>
+
+    <Assembly>VastuRevitPlugin.dll</Assembly>
+
+    <FullClassName>VastuRevitPlugin.App</FullClassName>
+
+    <ClientId>786ecf46-df85-4de5-bf81-4e8860b2fd4f</ClientId>
+
+    <VendorId>VASTU</VendorId>
+
+    <VendorDescription>Vastu Compliance MCP Integration</VendorDescription>
+
+  </AddIn>
+
+  <AddIn Type="Command">
+
+    <Text>Analyze Vastu</Text>
+
+    <Description>Run Vastu compliance analysis via MCP server.</Description>
+
+    <Assembly>VastuRevitPlugin.dll</Assembly>
+
+    <FullClassName>VastuRevitPlugin.Commands.AnalyzeVastuCommand</FullClassName>
+
+    <ClientId>a3f1c8e2-9b4d-4e6a-8c1f-2d7e5b9a0c34</ClientId>
+
+    <VendorId>VASTU</VendorId>
+
+    <VendorDescription>Vastu Compliance MCP Integration</VendorDescription>
+
+  </AddIn>
+
+  <AddIn Type="Command">
+
+    <Text>Export Report</Text>
+
+    <Description>Export HTML and JSON compliance report to Documents/VastuReports.</Description>
+
+    <Assembly>VastuRevitPlugin.dll</Assembly>
+
+    <FullClassName>VastuRevitPlugin.Commands.ExportReportCommand</FullClassName>
+
+    <ClientId>a8c4e2f1-3b5d-4a9e-9f7c-2d1e0b6a4f83</ClientId>
+
+    <VendorId>VASTU</VendorId>
+
+    <VendorDescription>Vastu Compliance MCP Integration</VendorDescription>
+
+  </AddIn>
+
+  <AddIn Type="Command">
+
+    <Text>Ghost Preview</Text>
+
+    <Description>Show ghost design preview of proposed Vastu remediation layout.</Description>
+
+    <Assembly>VastuRevitPlugin.dll</Assembly>
+
+    <FullClassName>VastuRevitPlugin.Commands.PreviewVastuCommand</FullClassName>
+
+    <ClientId>dd7b3510-1956-4036-a522-c3eab7eec5d6</ClientId>
+
+    <VendorId>VASTU</VendorId>
+
+    <VendorDescription>Vastu Compliance MCP Integration</VendorDescription>
+
+  </AddIn>
+
+  <AddIn Type="Command">
+
+    <Text>Clear Ghost</Text>
+
+    <Description>Remove ghost design preview graphics from the model.</Description>
+
+    <Assembly>VastuRevitPlugin.dll</Assembly>
+
+    <FullClassName>VastuRevitPlugin.Commands.ClearGhostDesignCommand</FullClassName>
+
+    <ClientId>b2e8f4a1-6c3d-4f9e-8a7b-1d2e3f405162</ClientId>
+
+    <VendorId>VASTU</VendorId>
+
+    <VendorDescription>Vastu Compliance MCP Integration</VendorDescription>
+
+  </AddIn>
+
+  <AddIn Type="Command">
+
+    <Text>Apply Remediation</Text>
+
+    <Description>Apply full RemediationPlan including approved geometry moves.</Description>
+
+    <Assembly>VastuRevitPlugin.dll</Assembly>
+
+    <FullClassName>VastuRevitPlugin.Commands.ApplyRemediationCommand</FullClassName>
+
+    <ClientId>e1f4a2b3-7c8d-4e9f-a1b2-3c4d5e6f7081</ClientId>
+
+    <VendorId>VASTU</VendorId>
+
+    <VendorDescription>Vastu Compliance MCP Integration</VendorDescription>
+
+  </AddIn>
+
+  <AddIn Type="Command">
+
+    <Text>Apply Safe Fixes</Text>
+
+    <Description>Apply auto-applicable Vastu remediation actions only.</Description>
+
+    <Assembly>VastuRevitPlugin.dll</Assembly>
+
+    <FullClassName>VastuRevitPlugin.Commands.ApplyVastuCommand</FullClassName>
+
+    <ClientId>cd06479c-b49d-42e2-bdcb-d3bea67deb7d</ClientId>
+
+    <VendorId>VASTU</VendorId>
+
+    <VendorDescription>Vastu Compliance MCP Integration</VendorDescription>
+
+  </AddIn>
+
+</RevitAddIns>
+
+
