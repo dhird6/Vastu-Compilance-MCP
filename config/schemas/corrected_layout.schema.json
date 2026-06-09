@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vastu-mcp.local/schemas/corrected_layout/v1",
+  "title": "CorrectedLayoutResult",
+  "description": "Same 2D floor plan with Vastu suggestion geometry applied.",
+  "type": "object",
+  "required": [
+    "version",
+    "approach",
+    "corrected_payload",
+    "original_compliance_score",
+    "corrected_compliance_score"
+  ],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "approach": { "const": "same_layout_with_suggestions" },
+    "original_source": { "type": "string" },
+    "corrected_payload": { "$ref": "#/$defs/floor_plan_payload" },
+    "changes_applied": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/applied_change" }
+    },
+    "unchanged_room_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "original_compliance_score": { "type": "number" },
+    "corrected_compliance_score": { "type": "number" },
+    "compliance_improved": { "type": "boolean" },
+    "validation": { "type": "object" }
+  },
+  "$defs": {
+    "point2d": {
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      }
+    },
+    "applied_change": {
+      "type": "object",
+      "required": ["room_id", "original_zone", "target_zone", "corrected_zone", "translation"],
+      "properties": {
+        "room_id": { "type": "string" },
+        "room_name": { "type": "string" },
+        "room_type": { "type": "string" },
+        "original_zone": { "type": "string" },
+        "target_zone": { "type": "string" },
+        "corrected_zone": { "type": "string" },
+        "translation": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "z": { "type": "number" }
+          }
+        },
+        "compliance_improved": { "type": "boolean" }
+      }
+    },
+    "floor_plan_element": {
+      "type": "object",
+      "required": ["id", "name", "element_type"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "element_type": { "enum": ["room", "wall", "door", "window"] },
+        "polygon": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/point2d" }
+        },
+        "metadata": { "type": "object" }
+      }
+    },
+    "floor_plan_payload": {
+      "type": "object",
+      "required": ["source", "elements"],
+      "properties": {
+        "source": { "const": "vastu_corrected_2d" },
+        "true_north_degrees": { "type": "number" },
+        "elements": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/floor_plan_element" }
+        }
+      }
+    }
+  }
+}

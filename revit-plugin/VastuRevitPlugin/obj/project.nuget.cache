@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "1ULxGTTOMis=",
+  "dgSpecHash": "TzoBtatk1w8=",
   "success": true,
-  "projectFilePath": "c:\\Users\\varkada\\OneDrive - Autodesk\\Desktop\\Plugin\\Vastu Compilance MCP\\revit-plugin\\VastuRevitPlugin\\VastuRevitPlugin.csproj",
+  "projectFilePath": "C:\\Users\\Dhiraj Dabhade\\Downloads\\Vastu\\Vastu Compilance MCP\\revit-plugin\\VastuRevitPlugin\\VastuRevitPlugin.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\varkada\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
-    "C:\\Users\\varkada\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
-    "C:\\Users\\varkada\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.27\\microsoft.windowsdesktop.app.ref.8.0.27.nupkg.sha512",
-    "C:\\Users\\varkada\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.27\\microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512"
+    "C:\\Users\\Dhiraj Dabhade\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\Dhiraj Dabhade\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.27\\microsoft.netcore.app.ref.8.0.27.nupkg.sha512",
+    "C:\\Users\\Dhiraj Dabhade\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.27\\microsoft.windowsdesktop.app.ref.8.0.27.nupkg.sha512",
+    "C:\\Users\\Dhiraj Dabhade\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.27\\microsoft.aspnetcore.app.ref.8.0.27.nupkg.sha512"
   ],
   "logs": []
 }

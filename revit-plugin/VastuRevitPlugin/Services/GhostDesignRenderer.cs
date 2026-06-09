@@ -115,17 +115,7 @@ public class GhostDesignRenderer
 
     public static void Clear(Document document)
     {
-        IReadOnlyList<ElementId> ids = VastuSession.GetGhostElementIds();
-        if (ids.Count == 0)
-        {
-            return;
-        }
-
-        using Transaction transaction = new Transaction(document, "Clear Vastu Ghost Design");
-        transaction.Start();
-        document.Delete(ids.ToList());
-        transaction.Commit();
-        VastuSession.ClearGhostElements();
+        PreviewGraphicsHelper.ClearGhost(document);
     }
 
     private static void DrawShiftArrow(

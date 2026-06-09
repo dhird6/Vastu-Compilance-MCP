@@ -14,7 +14,8 @@ sqlalchemy[asyncio]
 asyncpg
 pytest
 pytest-asyncio
+jinja2
 
 # Optional BIM/CAD parsers (install when needed):
-# ezdxf
+ezdxf
 # ifcopenshell

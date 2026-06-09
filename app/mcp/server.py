@@ -5,13 +5,17 @@ from app.models.schemas import (
     AnalyzeComplianceRequest,
     AnalyzeRevitComplianceRequest,
     AnalyzeRevitDeltaComplianceRequest,
+    ApplySuggestionsRequest,
     ComplianceChatRequest,
     EvaluateRoomRequest,
+    GenerateGhostOverlayRequest,
+    IntelligentLayoutRequest,
     KnowledgeIngestRequest,
     MCPInitializeRequest,
     MCPInitializeResponse,
     MCPToolCallRequest,
     MCPToolCallResponse,
+    ReportDownloadRequest,
     ResolveZoneRequest,
 )
 from app.services.chat.assistant import ComplianceChatAssistant
@@ -34,6 +38,11 @@ _TOOL_NAMES = [
     "evaluate_room",
     "resolve_zone",
     "check_brahmasthan",
+    "intelligent_layout_analyze",
+    "extract_layout_geometry",
+    "generate_ghost_overlay",
+    "generate_layout_from_report",
+    "download_vastu_report",
 ]
 
 
@@ -69,6 +78,39 @@ class MCPServer:
                 {"name": "evaluate_room", "description": "Stateless single-room evaluate (element_id, polygon, room_type)."},
                 {"name": "resolve_zone", "description": "Map bearing degrees to Vastu zone."},
                 {"name": "check_brahmasthan", "description": "Detect Brahmasthan overlap for a room."},
+                {
+                    "name": "intelligent_layout_analyze",
+                    "description": (
+                        "Full pipeline: extract 2D layout (VLM or payload) → Vastu report → "
+                        "constrained correction → layout SVG images. Supports user_constraints."
+                    ),
+                },
+                {
+                    "name": "extract_layout_geometry",
+                    "description": "Extract rooms/walls/doors/windows from image_base64 or payload only.",
+                },
+                {
+                    "name": "generate_ghost_overlay",
+                    "description": "Non-destructive ghost overlay + corrected layout from floor plan.",
+                },
+                {
+                    "name": "apply_layout_suggestions",
+                    "description": "Apply Vastu suggestions to same 2D layout (respects user_constraints).",
+                },
+                {
+                    "name": "generate_layout_from_report",
+                    "description": (
+                        "Generate NEW 2D Vastu-compliant layout from report. "
+                        "Returns Revit JSON + AutoCAD DXF I/O bundle."
+                    ),
+                },
+                {
+                    "name": "download_vastu_report",
+                    "description": (
+                        "Build downloadable Vastu report with company logo, 2D layout comparison, "
+                        "3D isometric views, priority fixes, and ZIP bundle (html + json + svg assets)."
+                    ),
+                },
             ]
         }
 
@@ -159,6 +201,135 @@ class MCPServer:
 
         if tool == "check_brahmasthan":
             return _ok(tool, self._thin.check_brahmasthan(EvaluateRoomRequest.model_validate(args)))
+
+        if tool == "intelligent_layout_analyze":
+            from app.api.deps_intelligent import get_intelligent_pipeline
+
+            response = await get_intelligent_pipeline().run(
+                IntelligentLayoutRequest.model_validate(args)
+            )
+            return _ok(tool, response.model_dump(mode="json"))
+
+        if tool == "extract_layout_geometry":
+            from app.services.extraction.vlm_layout_extractor import VlmLayoutExtractor
+
+            extraction = await VlmLayoutExtractor().extract(
+                image_base64=args.get("image_base64"),
+                image_media_type=args.get("image_media_type", "image/png"),
+                payload=args.get("payload"),
+                true_north_degrees=args.get("true_north_degrees"),
+            )
+            return _ok(tool, extraction.model_dump(mode="json"))
+
+        if tool == "generate_ghost_overlay":
+            from app.api.deps_correction import get_corrected_layout_builder, get_ghost_engine
+
+            request = GenerateGhostOverlayRequest.model_validate(args)
+            orientations = request.orientations
+            rule_results = request.rule_results
+            original_score = 100.0
+            if orientations is None or rule_results is None:
+                report = await self.pipeline.run(
+                    AnalyzeComplianceRequest(payload=request.payload, context=request.context)
+                )
+                orientations = report.orientations
+                rule_results = report.rule_results
+                original_score = report.summary.compliance_score
+
+            failed = [result for result in rule_results if not result.passed]
+            ghost_engine = get_ghost_engine()
+            layout_builder = get_corrected_layout_builder()
+            ghost = ghost_engine.build(
+                request.payload,
+                rule_results=failed,
+                orientations=orientations,
+                shift_distance_feet=request.shift_distance_feet,
+                source_request_id=request.context.get("request_id"),
+            )
+            corrected = (
+                layout_builder.build_from_ghost(
+                    request.payload, ghost, original_compliance_score=original_score
+                )
+                if ghost.room_corrections
+                else None
+            )
+            return _ok(
+                tool,
+                {
+                    "ghost_overlay": ghost.model_dump(mode="json"),
+                    "corrected_layout": corrected.model_dump(mode="json") if corrected else None,
+                },
+            )
+
+        if tool == "apply_layout_suggestions":
+            from app.api.deps_correction import get_corrected_layout_builder, get_ghost_engine
+
+            request = ApplySuggestionsRequest.model_validate(args)
+            orientations = request.orientations
+            rule_results = request.rule_results
+            original_score = 100.0
+            if orientations is None or rule_results is None:
+                report = await self.pipeline.run(
+                    AnalyzeComplianceRequest(payload=request.payload, context=request.context)
+                )
+                orientations = report.orientations
+                rule_results = report.rule_results
+                original_score = report.summary.compliance_score
+
+            failed = [result for result in rule_results if not result.passed]
+            if not failed:
+                return _ok(
+                    tool,
+                    {
+                        "corrected_layout": request.payload.model_dump(mode="json"),
+                        "message": "No violations — layout unchanged.",
+                    },
+                )
+
+            ghost_engine = get_ghost_engine()
+            layout_builder = get_corrected_layout_builder()
+            ghost = ghost_engine.build(
+                request.payload,
+                rule_results=failed,
+                orientations=orientations,
+                shift_distance_feet=request.shift_distance_feet,
+                source_request_id=request.context.get("request_id"),
+            )
+            corrected = layout_builder.build_from_ghost(
+                request.payload, ghost, original_compliance_score=original_score
+            )
+            payload = {"corrected_layout": corrected.model_dump(mode="json")}
+            if request.include_ghost_overlay:
+                payload["ghost_overlay"] = ghost.model_dump(mode="json")
+            return _ok(tool, payload)
+
+        if tool == "generate_layout_from_report":
+            from app.api.deps_layout import get_report_layout_generator
+            from app.models.schemas import GenerateLayoutFromReportRequest
+
+            result = await get_report_layout_generator().generate(
+                GenerateLayoutFromReportRequest.model_validate(args)
+            )
+            return _ok(tool, result.model_dump(mode="json"))
+
+        if tool == "download_vastu_report":
+            from app.services.report.report_export_service import ReportExportService
+
+            request = ReportDownloadRequest.model_validate(args)
+            bundle = ReportExportService().build_download_bundle(
+                request.report,
+                project_name=request.project_name,
+            )
+            return _ok(
+                tool,
+                {
+                    "filename": bundle.filename,
+                    "html": bundle.html,
+                    "zip_base64": bundle.zip_base64,
+                    "assets": bundle.assets,
+                    "message": "Save HTML for browser view or decode zip_base64 for full package.",
+                },
+            )
 
         return MCPToolCallResponse(tool=tool, status="error", error=f"Unknown tool: {tool}")
 

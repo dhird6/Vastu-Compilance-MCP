@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "vastu-compliance": {
+      "command": "python",
+      "args": ["-m", "app.mcp.stdio_server"],
+      "cwd": "C:\\Plugin\\Vastu Compilance MCP",
+      "env": {
+        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}",
+        "OPENAI_MODEL": "gpt-4o",
+        "RULES_PATH": "config/vastu_rules.yaml"
+      }
+    }
+  }
+}

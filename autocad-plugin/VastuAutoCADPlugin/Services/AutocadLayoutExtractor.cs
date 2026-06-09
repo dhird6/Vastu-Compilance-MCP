@@ -52,6 +52,37 @@ namespace VastuAutoCADPlugin.Services
             };
         }
 
+        public FloorPlanPayloadDto BuildFloorPlanPayload(Document document)
+        {
+            AnalyzeAutocadRequest request = BuildAnalyzeRequest(document);
+            var elements = new List<FloorPlanElementDto>();
+            foreach (AutocadEntity2D entity in request.Payload.Entities)
+            {
+                if (!string.Equals(entity.EntityType, "room", StringComparison.OrdinalIgnoreCase)
+                    || entity.Points == null
+                    || entity.Points.Count < 3)
+                {
+                    continue;
+                }
+
+                elements.Add(new FloorPlanElementDto
+                {
+                    Id = entity.Id,
+                    Name = entity.Name,
+                    ElementType = "room",
+                    Polygon = entity.Points,
+                    Metadata = entity.Metadata ?? new Dictionary<string, object>()
+                });
+            }
+
+            return new FloorPlanPayloadDto
+            {
+                Source = "direct_json",
+                TrueNorthDegrees = request.Payload.TrueNorthDegrees,
+                Elements = elements
+            };
+        }
+
         private static AutocadEntity2D ConvertEntity(Entity entity)
         {
             string category = ResolveCategory(entity.Layer);

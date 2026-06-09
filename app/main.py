@@ -9,6 +9,9 @@ from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_
 
 from app.api.routes.autodesk import router as autodesk_router
 from app.api.routes.compliance import router as compliance_router
+from app.api.routes.correction import router as correction_router
+from app.api.routes.intelligent import router as intelligent_router
+from app.api.routes.layout import router as layout_router
 from app.api.routes.mcp import router as mcp_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging, request_id_ctx_var
@@ -26,6 +29,9 @@ app = FastAPI(
     debug=settings.app_debug,
 )
 app.include_router(compliance_router)
+app.include_router(correction_router)
+app.include_router(intelligent_router)
+app.include_router(layout_router)
 app.include_router(mcp_router)
 app.include_router(autodesk_router)
 

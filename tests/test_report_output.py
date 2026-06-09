@@ -37,7 +37,8 @@ async def test_report_includes_structured_output_and_html():
     assert "priority_fixes" in report.structured_output
     assert report.html_report
     assert "<!DOCTYPE html>" in report.html_report
-    assert "Vastu Compliance Report" in report.html_report
+    assert "Vastu Compliance" in report.html_report
+    assert "2D Layout Comparison" in report.html_report or "Room Dashboard" in report.html_report
 
 
 def test_formatter_priority_fixes_sorted():

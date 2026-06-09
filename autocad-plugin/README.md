@@ -2,11 +2,17 @@
 
 This plugin allows you to analyze an AutoCAD layout and get Vastu suggestions directly from the MCP server.
 
-## Command
+## Commands
 
-- `VASTUANALYZE`
+| Command | Purpose |
+|---------|---------|
+| `VASTUANALYZE` | Run compliance analysis via MCP server |
+| `VASTURESULT` | Draw solid result layout (same plan, suggestions applied) |
+| `VASTUCLEARRESULT` | Remove result layout graphics |
 
-Run this command in AutoCAD after loading the plugin. It sends mapped layout entities to:
+Run `VASTUANALYZE` first. When violations exist, the server returns `corrected_layout` — run `VASTURESULT` to draw polylines on layers `VASTU_RESULT` and `VASTU_RESULT_CHANGED`.
+
+Analysis sends mapped layout entities to:
 - `POST /api/v1/compliance/analyze/autocad`
 
 ## Entity mapping rules

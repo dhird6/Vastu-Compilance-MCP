@@ -39,6 +39,32 @@ class ReportFormatter:
             },
             "remediation_summary": report.remediation_plan.summary,
             "validation_issue_count": len(report.validation_issues),
+            "corrected_layout": self._build_corrected_layout_summary(report),
+        }
+
+    def _build_corrected_layout_summary(self, report: ComplianceReport) -> dict | None:
+        corrected = report.corrected_layout
+        if corrected is None:
+            return None
+        return {
+            "approach": corrected.approach,
+            "original_compliance_score": corrected.original_compliance_score,
+            "corrected_compliance_score": corrected.corrected_compliance_score,
+            "compliance_improved": corrected.compliance_improved,
+            "rooms_changed": len(corrected.changes_applied),
+            "rooms_unchanged": len(corrected.unchanged_room_ids),
+            "changes": [
+                {
+                    "room_id": change.room_id,
+                    "room_name": change.room_name,
+                    "from_zone": change.original_zone,
+                    "to_zone": change.corrected_zone,
+                    "target_zone": change.target_zone,
+                }
+                for change in corrected.changes_applied
+            ],
+            "payload_source": corrected.corrected_payload.source,
+            "element_count": len(corrected.corrected_payload.elements),
         }
 
     def _headline(self, score: float, grade: str) -> str:

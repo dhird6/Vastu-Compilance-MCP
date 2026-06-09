@@ -31,6 +31,67 @@ public class RevitModelExtractor
         };
     }
 
+    public FloorPlanPayloadDto BuildFloorPlanPayload(Document document)
+    {
+        var elements = new List<FloorPlanElementDto>();
+        var collector = new FilteredElementCollector(document)
+            .OfCategory(BuiltInCategory.OST_Rooms)
+            .WhereElementIsNotElementType();
+
+        foreach (Element element in collector)
+        {
+            if (element is not Room room)
+            {
+                continue;
+            }
+
+            List<Point2DDto> polygon = ExtractRoomFootprintDto(room);
+            if (polygon.Count < 3)
+            {
+                continue;
+            }
+
+            elements.Add(new FloorPlanElementDto
+            {
+                Id = room.UniqueId,
+                Name = string.IsNullOrWhiteSpace(room.Name) ? "room" : room.Name,
+                ElementType = "room",
+                Polygon = polygon,
+                Metadata = new Dictionary<string, object>
+                {
+                    { "room_type", InferRoomType(room) }
+                }
+            });
+        }
+
+        return new FloorPlanPayloadDto
+        {
+            Source = "direct_json",
+            TrueNorthDegrees = ResolveTrueNorthDegrees(document),
+            Elements = elements
+        };
+    }
+
+    private static List<Point2DDto> ExtractRoomFootprintDto(Room room)
+    {
+        var points = new List<Point2DDto>();
+        SpatialElementBoundaryOptions options = new SpatialElementBoundaryOptions();
+        IList<IList<BoundarySegment>>? loops = room.GetBoundarySegments(options);
+        if (loops == null || loops.Count == 0)
+        {
+            return points;
+        }
+
+        foreach (BoundarySegment segment in loops[0])
+        {
+            Curve curve = segment.GetCurve();
+            XYZ end = curve.GetEndPoint(1);
+            points.Add(new Point2DDto { X = end.X, Y = end.Y });
+        }
+
+        return points;
+    }
+
     private static List<string> CollectLevels(Document document)
     {
         return new FilteredElementCollector(document)

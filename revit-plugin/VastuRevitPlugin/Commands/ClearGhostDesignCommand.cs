@@ -20,15 +20,20 @@ public class ClearGhostDesignCommand : IExternalCommand
             return Result.Failed;
         }
 
-        int count = VastuSession.GetGhostElementIds().Count;
-        if (count == 0)
+        int ghostCount = VastuSession.GetGhostElementIds().Count;
+        int resultCount = VastuSession.GetResultElementIds().Count;
+        if (ghostCount == 0 && resultCount == 0)
         {
-            TaskDialog.Show("Vastu Compliance", "No ghost design preview is active.");
+            TaskDialog.Show("Vastu Compliance", "No preview graphics are active (ghost or result layout).");
             return Result.Cancelled;
         }
 
-        GhostDesignRenderer.Clear(uiDocument.Document);
-        TaskDialog.Show("Vastu Compliance", $"Removed ghost preview ({count} element(s)).");
+        Document document = uiDocument.Document;
+        PreviewGraphicsHelper.ClearAll(document);
+
+        TaskDialog.Show(
+            "Vastu Compliance",
+            $"Removed preview graphics: {ghostCount} ghost + {resultCount} result element(s).");
         return Result.Succeeded;
     }
 }

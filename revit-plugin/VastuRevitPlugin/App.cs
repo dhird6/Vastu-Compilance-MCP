@@ -34,11 +34,31 @@ public class App : IExternalApplication
 
             AddButton(panel, assemblyPath, "PreviewVastu", "Ghost\nPreview",
                 typeof(Commands.PreviewVastuCommand).FullName!,
-                "Show ghost design: proposed room layout from remediation plan.");
+                "Show ghost design: proposed room shifts with arrows.");
 
-            AddButton(panel, assemblyPath, "ClearGhost", "Clear\nGhost",
+            AddButton(panel, assemblyPath, "ShowResultLayout", "Result\nLayout",
+                typeof(Commands.ShowResultLayoutCommand).FullName!,
+                "Show solid result layout: same plan with Vastu suggestions applied.");
+
+            AddButton(panel, assemblyPath, "GenerateVastuLayout", "Generate\nLayout",
+                typeof(Commands.GenerateVastuLayoutCommand).FullName!,
+                "Generate NEW 2D Vastu-compliant layout from compliance report (LLM + rules).");
+
+            AddButton(panel, assemblyPath, "ConfigureLayoutConstraints", "Layout\nConstraints",
+                typeof(Commands.ConfigureLayoutConstraintsCommand).FullName!,
+                "Lock rooms, pin zones, or limit movement before generating a new layout.");
+
+            AddButton(panel, assemblyPath, "ShowGeneratedLayout", "Generated\nLayout",
+                typeof(Commands.ShowGeneratedLayoutCommand).FullName!,
+                "Draw the new generated Vastu layout as non-destructive detail curves.");
+
+            AddButton(panel, assemblyPath, "ExportGeneratedLayout", "Export\nLayout DXF",
+                typeof(Commands.ExportGeneratedLayoutCommand).FullName!,
+                "Export the last generated layout to Documents/VastuLayouts as DXF.");
+
+            AddButton(panel, assemblyPath, "ClearGhost", "Clear\nPreview",
                 typeof(Commands.ClearGhostDesignCommand).FullName!,
-                "Remove ghost design preview graphics from the model.");
+                "Remove ghost preview and result layout graphics from the model.");
 
             AddButton(panel, assemblyPath, "ApplyRemediation", "Apply\nRemediation",
                 typeof(Commands.ApplyRemediationCommand).FullName!,

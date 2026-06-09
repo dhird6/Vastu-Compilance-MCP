@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{ company_name }} — Vastu Compliance Report</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0891b2;
+      --accent-light: #ecfeff;
+      --warn: #ea580c;
+      --crit: #dc2626;
+      --ok: #059669;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.55;
+    }
+    .report-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 48px; }
+    .report-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      background: linear-gradient(135deg, #0f172a 0%, #164e63 100%);
+      color: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+    }
+    .brand { display: flex; align-items: center; gap: 20px; }
+    .brand img { height: 56px; width: auto; }
+    .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 700; }
+    .brand p { margin: 4px 0 0; color: #cbd5e1; font-size: 0.95rem; }
+    .meta { text-align: right; font-size: 0.85rem; color: #cbd5e1; }
+    .meta strong { display: block; color: #fff; font-size: 1rem; margin-bottom: 4px; }
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin: 0 0 24px;
+      padding: 0 4px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 1.15rem;
+      color: var(--text);
+      border-bottom: 2px solid var(--accent-light);
+      padding-bottom: 8px;
+    }
+    .score-ring { font-size: 2.6rem; font-weight: 800; color: var(--accent); line-height: 1; }
+    .grade { font-size: 1.1rem; color: var(--muted); margin-top: 4px; }
+    .progress { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-top: 12px; }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--crit), var(--warn), var(--ok));
+      width: {{ score_pct }}%;
+    }
+    .visual-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .visual-card {
+      background: #0f1419;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+    .visual-card .caption {
+      padding: 10px 14px;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .visual-card .svg-wrap { padding: 8px; overflow: auto; }
+    .visual-card svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; background: #f1f5f9; }
+    tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-critical { background: #fee2e2; color: var(--crit); }
+    .badge-warning { background: #ffedd5; color: var(--warn); }
+    .badge-high { background: #fee2e2; color: var(--crit); }
+    .badge-compliant { background: #d1fae5; color: var(--ok); }
+    .score-delta {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--accent-light);
+      color: var(--accent);
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    footer {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    @media print {
+      body { background: #fff; }
+      .report-wrap { padding: 0; max-width: none; }
+      .report-header { border-radius: 0; }
+      .card { break-inside: avoid; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="report-wrap">
+    <header class="report-header">
+      <div class="brand">
+        {% if logo_data_uri %}
+        <img src="{{ logo_data_uri }}" alt="{{ company_name }} logo"/>
+        {% endif %}
+        <div>
+          <h1>{{ company_name }}</h1>
+          <p>{{ company_tagline }}</p>
+        </div>
+      </div>
+      <div class="meta">
+        <strong>Vastu Compliance Report</strong>
+        Request {{ request_id }}<br/>
+        Generated {{ generated_at }}
+      </div>
+    </header>
+
+    <p class="subtitle">{{ headline }}</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="score-ring">{{ score | round(1) }}%</div>
+        <div class="grade">Grade {{ grade }}</div>
+        <div class="progress"><div class="progress-bar"></div></div>
+        {% if corrected_score is not none %}
+        <div class="score-delta">
+          Corrected score: {{ corrected_score | round(1) }}%
+          {% if score_improved %}↑{% else %}→{% endif %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="card">
+        <strong>Rooms analyzed</strong><br/>{{ total_rooms }}<br/><br/>
+        <strong>Rules passed / failed</strong><br/>{{ passed_rules }} / {{ failed_rules }}
+      </div>
+      <div class="card">
+        <strong>Remediation</strong><br/>
+        {{ auto_fixes }} auto · {{ manual_fixes }} manual<br/><br/>
+        <span style="color:var(--muted)">{{ remediation_summary }}</span>
+      </div>
+    </div>
+
+    {% if layout_original or layout_corrected or layout_comparison %}
+    <div class="card" style="margin-bottom:24px">
+      <h2>2D Layout Comparison</h2>
+      <div class="visual-grid">
+        {% if layout_original %}
+        <div class="visual-card">
+          <div class="caption">Original Layout</div>
+          <div class="svg-wrap">{{ layout_original | safe }}</div>
+        </div>
+        {% endif %}
+        {% if layout_corrected %}
+        <div class="visual-card">
+          <div class="caption">Vastu-Corrected Layout</div>
+          <div class="svg-wrap">{{ layout_corrected | safe }}</div>
+        </div>
+        {% endif %}
+        {% if layout_comparison %}
+        <div class="visual-card">
+          <div class="caption">Before vs After Overlay</div>
+          <div class="svg-wrap">{{ layout_comparison | safe }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if iso_original or iso_corrected %}
+    <div class="card" style="margin-bottom:24px">
+      <h2>3D Isometric Comparison</h2>
+      <p style="color:var(--muted);font-size:0.9rem;margin:-6px 0 14px">
+        Extruded room volumes for spatial comparison (deterministic render from floor plan geometry).
+      </p>
+      <div class="visual-grid">
+        {% if iso_original %}
+        <div class="visual-card">
+          <div class="caption">3D View — Original</div>
+          <div class="svg-wrap">{{ iso_original | safe }}</div>
+        </div>
+        {% endif %}
+        {% if iso_corrected %}
+        <div class="visual-card">
+          <div class="caption">3D View — Vastu-Corrected</div>
+          <div class="svg-wrap">{{ iso_corrected | safe }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card" style="margin-bottom:24px">
+      <h2>Priority Fixes</h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Room</th><th>Issue</th><th>Current → Target</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% if priority_fixes %}
+            {% for fix in priority_fixes %}
+            <tr>
+              <td>{{ fix.priority }}</td>
+              <td>{{ fix.room_name }} <small>({{ fix.room_type }})</small></td>
+              <td><span class="badge badge-{{ fix.severity if fix.severity in ['critical','high'] else 'warning' }}">{{ fix.rule_id }}</span></td>
+              <td>{{ fix.current_zone }} → {{ fix.target_zone }} <small>{{ fix.target_sanskrit }}</small></td>
+              <td>{{ fix.recommendation[:140] }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="5">No violations — layout is Vastu compliant.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-bottom:24px">
+      <h2>Room Dashboard</h2>
+      <table>
+        <thead>
+          <tr><th>Status</th><th>Room</th><th>Type</th><th>Zone</th><th>Target</th><th>Area (sq ft)</th></tr>
+        </thead>
+        <tbody>
+          {% for row in room_dashboard %}
+          <tr>
+            <td><span class="badge badge-{{ row.status if row.status in ['critical','warning','compliant'] else 'warning' }}">{{ row.status }}</span></td>
+            <td>{{ row.room_name }}</td>
+            <td>{{ row.room_type }}</td>
+            <td>{{ row.zone }} <small>({{ row.zone_sanskrit }})</small></td>
+            <td>{{ row.target_zone }}{% if row.target_sanskrit %} ({{ row.target_sanskrit }}){% endif %}</td>
+            <td>{{ row.area_sqft | round(0) | int }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Vastu Zone Legend</h2>
+      <table>
+        <thead><tr><th>Zone</th><th>Sanskrit</th><th>Element</th><th>Ideal For</th></tr></thead>
+        <tbody>
+          {% for zone in zone_legend %}
+          <tr>
+            <td>{{ zone.zone }}</td>
+            <td>{{ zone.sanskrit }}</td>
+            <td>{{ zone.element }}</td>
+            <td>{{ zone.recommended_uses[:4] | join(', ') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      {{ company_name }} · {{ company_website }} · Request {{ request_id }} · {{ generated_at }}<br/>
+      This report is generated by the Vastu Compliance MCP platform. Rules engine is deterministic; AI enriches explanations only.
+    </footer>
+  </div>
+</body>
+</html>

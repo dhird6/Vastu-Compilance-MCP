@@ -74,9 +74,27 @@
 
   <AddIn Type="Command">
 
+    <Text>Result Layout</Text>
+
+    <Description>Show solid result layout with Vastu suggestions applied to the same 2D plan.</Description>
+
+    <Assembly>VastuRevitPlugin.dll</Assembly>
+
+    <FullClassName>VastuRevitPlugin.Commands.ShowResultLayoutCommand</FullClassName>
+
+    <ClientId>f3a8c2d1-4e5b-4a9f-8c7d-1e2f3a4b5c6d</ClientId>
+
+    <VendorId>VASTU</VendorId>
+
+    <VendorDescription>Vastu Compliance MCP Integration</VendorDescription>
+
+  </AddIn>
+
+  <AddIn Type="Command">
+
     <Text>Clear Ghost</Text>
 
-    <Description>Remove ghost design preview graphics from the model.</Description>
+    <Description>Remove ghost preview and result layout graphics from the model.</Description>
 
     <Assembly>VastuRevitPlugin.dll</Assembly>
 

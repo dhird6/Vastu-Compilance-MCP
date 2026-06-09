@@ -46,10 +46,11 @@ $env:VASTU_MCP_URL = "http://127.0.0.1:8000"
 | # | Ribbon button | Command | What it does |
 |---|---------------|---------|--------------|
 | 1 | **Analyze Vastu** | `AnalyzeVastuCommand` | Extracts model → MCP analyze → score + stores `RemediationPlan` |
-| 2 | **Ghost Preview** | `PreviewVastuCommand` | Draws **ghost design** (cyan proposed room outlines) + action summary |
-| 3 | **Clear Ghost** | `ClearGhostDesignCommand` | Removes ghost preview graphics |
-| 4 | **Apply Remediation** | `ApplyRemediationCommand` | **Full bridge:** safe fixes + guides, then prompts to move boundary walls |
-| 5 | **Safe Fixes Only** | `ApplyVastuCommand` | Safe fixes only (highlights, comments, tags, guides) — **no** wall moves |
+| 2 | **Result Layout** | `ShowResultLayoutCommand` | Draws **solid green** corrected 2D plan from `corrected_layout` (same rooms, suggestions applied) |
+| 3 | **Ghost Preview** | `PreviewVastuCommand` | Draws **ghost design** (cyan shift arrows + compass) + action summary |
+| 4 | **Clear Preview** | `ClearGhostDesignCommand` | Removes ghost + result layout graphics |
+| 5 | **Apply Remediation** | `ApplyRemediationCommand` | **Full bridge:** safe fixes + guides, then prompts to move boundary walls |
+| 6 | **Safe Fixes Only** | `ApplyVastuCommand` | Safe fixes only (highlights, comments, tags, guides) — **no** wall moves |
 
 ---
 
@@ -62,11 +63,12 @@ $env:VASTU_MCP_URL = "http://127.0.0.1:8000"
 | Step | Button | Action |
 |------|--------|--------|
 | **1** | **Analyze Vastu** | Dialog shows compliance score, top recommendations, and remediation summary. |
-| **2** | **Ghost Preview** | See cyan ghost outlines = proposed room layout; review `[GHOST]`, `[WALL-MOVE]`, `[AUTO]` actions. |
-| **3** | **Apply Remediation** | (a) Applies safe fixes and zone guides. (b) Prompts for approval. (c) Moves room boundary walls toward target Vastu zones (default 3 ft). |
-| **4** | *(optional)* **Safe Fixes Only** | Visual/metadata fixes only — no wall moves. |
-| **5** | *(optional)* **Clear Ghost** | Remove preview graphics before or after apply. |
-| **6** | **Analyze Vastu** | Re-run to verify updated compliance after changes. |
+| **2** | **Result Layout** | Solid green room outlines = corrected 2D layout from MCP (`corrected_payload`). |
+| **3** | **Ghost Preview** | Cyan ghost + gold arrows = shift preview vs original; review remediation actions. |
+| **4** | **Apply Remediation** | (a) Applies safe fixes and zone guides. (b) Prompts for approval. (c) Moves room boundary walls toward target Vastu zones (default 3 ft). |
+| **5** | *(optional)* **Safe Fixes Only** | Visual/metadata fixes only — no wall moves. |
+| **6** | *(optional)* **Clear Preview** | Remove ghost + result layout graphics before or after apply. |
+| **7** | **Analyze Vastu** | Re-run to verify updated compliance after changes. |
 
 **Undo:** Use **Ctrl+Z** if wall moves are not desired. Prefer testing on a **copy** of the project first.
 

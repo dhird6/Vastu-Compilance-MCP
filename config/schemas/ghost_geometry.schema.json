@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vastu-mcp.local/schemas/ghost_geometry/v1",
+  "title": "GhostOverlayPayload",
+  "description": "Non-destructive corrected geometry overlay for CAD plugins (Approach 1).",
+  "type": "object",
+  "required": ["version", "metadata", "room_corrections", "elements"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "metadata": {
+      "type": "object",
+      "required": ["approach", "coordinate_system", "units", "plot_center", "plot_boundary"],
+      "properties": {
+        "approach": { "const": "ghost_overlay" },
+        "coordinate_system": { "const": "plan_xy_y_north" },
+        "units": { "enum": ["feet", "meters"] },
+        "true_north_degrees": { "type": "number" },
+        "plot_center": { "$ref": "#/$defs/point2d" },
+        "plot_boundary": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "$ref": "#/$defs/point2d" }
+        },
+        "source_request_id": { "type": "string" },
+        "plugin_render_hints": {
+          "type": "object",
+          "properties": {
+            "revit_layer": { "type": "string" },
+            "autocad_layer": { "type": "string" },
+            "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+            "non_destructive": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "room_corrections": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/room_correction" }
+    },
+    "elements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ghost_element" }
+    },
+    "validation": { "type": "object" }
+  },
+  "$defs": {
+    "point2d": {
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      }
+    },
+    "room_correction": {
+      "type": "object",
+      "required": [
+        "room_id",
+        "original_polygon",
+        "corrected_polygon",
+        "original_zone",
+        "target_zone",
+        "corrected_zone",
+        "translation"
+      ],
+      "properties": {
+        "room_id": { "type": "string" },
+        "room_name": { "type": "string" },
+        "room_type": { "type": "string" },
+        "original_polygon": { "type": "array", "items": { "$ref": "#/$defs/point2d" } },
+        "corrected_polygon": { "type": "array", "items": { "$ref": "#/$defs/point2d" } },
+        "original_centroid": { "$ref": "#/$defs/point2d" },
+        "corrected_centroid": { "$ref": "#/$defs/point2d" },
+        "original_zone": { "type": "string" },
+        "target_zone": { "type": "string" },
+        "corrected_zone": { "type": "string" },
+        "translation": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "z": { "type": "number" }
+          }
+        },
+        "rule_ids": { "type": "array", "items": { "type": "string" } },
+        "compliance_improved": { "type": "boolean" }
+      }
+    },
+    "ghost_element": {
+      "type": "object",
+      "required": ["element_id", "kind", "geometry", "style"],
+      "properties": {
+        "element_id": { "type": "string" },
+        "kind": {
+          "enum": [
+            "room_polygon",
+            "wall_segment",
+            "shift_arrow",
+            "zone_compass",
+            "zone_wedge",
+            "label"
+          ]
+        },
+        "room_id": { "type": "string" },
+        "rule_id": { "type": "string" },
+        "geometry": { "type": "object" },
+        "style": {
+          "enum": ["cyan_dashed", "gold_solid", "blue_thin", "red_warning"]
+        },
+        "z_index": { "type": "integer" },
+        "metadata": { "type": "object" }
+      }
+    }
+  }
+}

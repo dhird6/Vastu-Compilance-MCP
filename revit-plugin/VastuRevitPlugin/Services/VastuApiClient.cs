@@ -33,11 +33,17 @@ public class VastuApiClient
         return Post<AnalyzeComplianceResponse>("/api/v1/compliance/analyze/revit3d/delta", body);
     }
 
+    public GenerateLayoutFromReportResponse GenerateLayoutFromReport(GenerateLayoutFromReportRequest request)
+    {
+        return Post<GenerateLayoutFromReportResponse>("/api/v1/layout/generate-from-report", request);
+    }
+
     private T Post<T>(string path, object request)
     {
         string endpoint = _baseUrl + path;
         using var httpClient = new HttpClient();
-        httpClient.Timeout = TimeSpan.FromSeconds(60);
+        int timeoutSeconds = path.Contains("/layout/generate-from-report") ? 120 : 60;
+        httpClient.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
         string json = JsonConvert.SerializeObject(request);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");
         HttpResponseMessage response = httpClient.PostAsync(endpoint, content).GetAwaiter().GetResult();

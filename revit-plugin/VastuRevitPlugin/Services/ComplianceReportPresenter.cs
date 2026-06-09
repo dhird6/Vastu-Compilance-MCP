@@ -21,7 +21,7 @@ public static class ComplianceReportPresenter
         if (structured?["executive_summary"] is JObject exec)
         {
             dialog.MainInstruction = exec["headline"]?.ToString() ?? "Vastu analysis complete";
-            dialog.MainContent = BuildMainContent(exec, report.Summary);
+            dialog.MainContent = BuildMainContent(exec, report.Summary, report);
             dialog.ExpandedContent = BuildExpandedContent(structured, report);
         }
         else
@@ -51,7 +51,7 @@ public static class ComplianceReportPresenter
         dialog.Show();
     }
 
-    private static string BuildMainContent(JObject exec, ComplianceSummary summary)
+    private static string BuildMainContent(JObject exec, ComplianceSummary summary, ComplianceReport report)
     {
         StringBuilder sb = new StringBuilder();
         sb.AppendLine($"Score: {summary.ComplianceScore:0.0}%  ·  Grade {summary.Grade}");
@@ -59,7 +59,14 @@ public static class ComplianceReportPresenter
         sb.AppendLine($"Auto fixes: {exec["auto_fixes"]}  ·  Manual: {exec["manual_fixes"]}");
         sb.AppendLine();
         sb.AppendLine("View: color-coded rooms in plan (heatmap applied).");
-        sb.AppendLine("Next: Ghost Preview → Apply Remediation");
+        if (report.CorrectedLayout != null && report.CorrectedLayout.ChangesApplied.Count > 0)
+        {
+            sb.AppendLine(
+                $"Result layout ready: {report.CorrectedLayout.OriginalComplianceScore:0.0}% → " +
+                $"{report.CorrectedLayout.CorrectedComplianceScore:0.0}%");
+        }
+
+        sb.AppendLine("Next: Result Layout → Ghost Preview → Apply Remediation");
         return sb.ToString();
     }
 

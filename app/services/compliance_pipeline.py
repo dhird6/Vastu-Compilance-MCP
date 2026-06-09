@@ -11,6 +11,8 @@ from app.models.schemas import (
 from app.plugins.manager import PluginManager
 from app.services.ai.explainer import ExplainableAIEngine
 from app.services.context.context_manager import ComplianceContextManager
+from app.services.correction.corrected_layout import CorrectedLayoutBuilder
+from app.services.correction.ghost_overlay import GhostOverlayEngine
 from app.services.direction.engine import DirectionEngine
 from app.services.geometry.engine import GeometryEngine
 from app.services.remediation.planner import RemediationPlanner
@@ -19,6 +21,8 @@ from app.services.scoring.compliance import ComplianceScoringEngine
 from app.services.validation.geometry_validator import GeometryValidator
 from app.services.report.formatter import ReportFormatter
 from app.services.report.html_generator import HtmlReportGenerator
+from app.services.visualization.isometric_renderer import IsometricLayoutRenderer
+from app.services.visualization.layout_image_renderer import LayoutImageRenderer
 from app.services.visualization.overlay import VisualizationEngine
 
 
@@ -35,8 +39,12 @@ class CompliancePipeline:
         context_manager: ComplianceContextManager,
         plugin_manager: PluginManager,
         remediation_planner: RemediationPlanner | None = None,
+        ghost_overlay_engine: GhostOverlayEngine | None = None,
+        corrected_layout_builder: CorrectedLayoutBuilder | None = None,
         report_formatter: ReportFormatter | None = None,
         html_generator: HtmlReportGenerator | None = None,
+        layout_image_renderer: LayoutImageRenderer | None = None,
+        isometric_renderer: IsometricLayoutRenderer | None = None,
     ) -> None:
         self.geometry_engine = geometry_engine
         self.direction_engine = direction_engine
@@ -48,8 +56,19 @@ class CompliancePipeline:
         self.context_manager = context_manager
         self.plugin_manager = plugin_manager
         self.remediation_planner = remediation_planner or RemediationPlanner(direction_engine)
+        self.ghost_overlay_engine = ghost_overlay_engine or GhostOverlayEngine(
+            geometry_engine, direction_engine
+        )
+        self.corrected_layout_builder = corrected_layout_builder or CorrectedLayoutBuilder(
+            geometry_engine=geometry_engine,
+            direction_engine=direction_engine,
+            rule_engine=rule_engine,
+            scoring_engine=scoring_engine,
+        )
         self.report_formatter = report_formatter or ReportFormatter()
         self.html_generator = html_generator or HtmlReportGenerator(self.report_formatter)
+        self.layout_image_renderer = layout_image_renderer or LayoutImageRenderer()
+        self.isometric_renderer = isometric_renderer or IsometricLayoutRenderer()
 
     async def run(self, request: AnalyzeComplianceRequest) -> ComplianceReport:
         payload = await self.geometry_engine.extract_structured_elements(request.payload)
@@ -98,10 +117,25 @@ class CompliancePipeline:
             failed_results, orientations, recommendations
         )
         summary = self.scoring_engine.compute_summary(len(orientations), results)
+        context = self.context_manager.build_context(request_context)
+
+        corrected_layout = None
+        if failed_results:
+            ghost = self.ghost_overlay_engine.build(
+                payload,
+                rule_results=failed_results,
+                orientations=orientations,
+                source_request_id=context.get("request_id"),
+            )
+            corrected_layout = self.corrected_layout_builder.build_from_ghost(
+                payload,
+                ghost,
+                original_compliance_score=summary.compliance_score,
+            )
+
         directional_zones = self.direction_engine.build_directional_zones()
         heatmap = self.visualization_engine.build_heatmap(orientations, results)
         overlays = self.visualization_engine.build_overlay_payload(orientations, directional_zones)
-        context = self.context_manager.build_context(request_context)
 
         report = ComplianceReport(
             request_id=context["request_id"],
@@ -111,6 +145,7 @@ class CompliancePipeline:
             rule_results=results,
             recommendations=recommendations,
             remediation_plan=remediation_plan,
+            corrected_layout=corrected_layout,
             heatmap=heatmap,
             overlays=overlays,
             context=context,
@@ -118,6 +153,27 @@ class CompliancePipeline:
             html_report=None,
         )
         report.structured_output = self.report_formatter.build(report)
-        report.html_report = self.html_generator.generate(report)
+
+        layout_images = None
+        iso_original: str | None = None
+        iso_corrected: str | None = None
+        if corrected_layout is not None and corrected_layout.corrected_payload is not None:
+            layout_images = self.layout_image_renderer.render_bundle(
+                payload,
+                corrected_layout.corrected_payload,
+            )
+            iso_original_art, iso_corrected_art = self.isometric_renderer.render_comparison(
+                payload,
+                corrected_layout.corrected_payload,
+            )
+            iso_original = iso_original_art.content
+            iso_corrected = iso_corrected_art.content if iso_corrected_art else None
+
+        report.html_report = self.html_generator.generate(
+            report,
+            layout_images=layout_images,
+            isometric_original=iso_original,
+            isometric_corrected=iso_corrected,
+        )
         report_dict = await self.plugin_manager.run_after(report.model_dump(mode="json"))
         return ComplianceReport.model_validate(report_dict)

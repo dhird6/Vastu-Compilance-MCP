@@ -28,10 +28,7 @@ public class AnalyzeVastuCommand : IExternalCommand
 
         try
         {
-            if (VastuSession.GetGhostElementIds().Count > 0)
-            {
-                GhostDesignRenderer.Clear(document);
-            }
+            PreviewGraphicsHelper.ClearAll(document);
 
             RevitModelExtractor extractor = new RevitModelExtractor();
             RevitAnalyzeRequest request = extractor.BuildAnalyzeRequest(document);
@@ -84,7 +81,7 @@ public class AnalyzeVastuCommand : IExternalCommand
         {
             builder.AppendLine("Remediation Plan:");
             builder.AppendLine(report.RemediationPlan.Summary);
-            builder.AppendLine("Use Ghost Preview to see proposed layout, then Apply Remediation.");
+            builder.AppendLine("Use Result Layout for solid corrected plan, Ghost Preview for shift arrows.");
             builder.AppendLine();
         }
 

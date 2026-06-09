@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vastu-mcp.local/schemas/generated_layout/v1",
+  "title": "GeneratedLayoutDocument",
+  "description": "New-instance Vastu-compliant floor plan (Approach 2).",
+  "type": "object",
+  "required": ["version", "metadata", "rooms"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "approach",
+        "plot_center",
+        "plot_boundary",
+        "original_compliance_score",
+        "generated_compliance_score"
+      ],
+      "properties": {
+        "approach": { "const": "ai_layout_generator" },
+        "coordinate_system": { "const": "plan_xy_y_north" },
+        "units": { "enum": ["feet", "meters"] },
+        "true_north_degrees": { "type": "number" },
+        "plot_center": { "$ref": "#/$defs/point2d" },
+        "plot_boundary": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "$ref": "#/$defs/point2d" }
+        },
+        "original_compliance_score": { "type": "number" },
+        "generated_compliance_score": { "type": "number" },
+        "generation_strategy": { "enum": ["deterministic", "llm", "hybrid"] },
+        "llm_model": { "type": "string" }
+      }
+    },
+    "rooms": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/room_placement" }
+    },
+    "walls": { "type": "array" },
+    "validation": { "type": "object" },
+    "export_artifacts": { "type": "object" }
+  },
+  "$defs": {
+    "point2d": {
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      }
+    },
+    "room_placement": {
+      "type": "object",
+      "required": ["room_id", "room_type", "polygon", "area", "centroid", "zone"],
+      "properties": {
+        "room_id": { "type": "string" },
+        "room_name": { "type": "string" },
+        "room_type": { "type": "string" },
+        "polygon": { "type": "array", "items": { "$ref": "#/$defs/point2d" } },
+        "area": { "type": "number", "minimum": 0 },
+        "centroid": { "$ref": "#/$defs/point2d" },
+        "zone": { "type": "string" },
+        "source": { "enum": ["deterministic", "llm", "hybrid"] }
+      }
+    }
+  }
+}

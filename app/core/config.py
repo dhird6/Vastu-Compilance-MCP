@@ -28,6 +28,14 @@ class Settings(BaseSettings):
     openai_api_key: str = Field(default="", alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-4o", alias="OPENAI_MODEL")
 
+    report_company_name: str = Field(default="Vastu Compliance", alias="REPORT_COMPANY_NAME")
+    report_company_tagline: str = Field(
+        default="Professional Vastu Analysis Platform",
+        alias="REPORT_COMPANY_TAGLINE",
+    )
+    report_company_website: str = Field(default="https://vastu-compliance.local", alias="REPORT_COMPANY_WEBSITE")
+    report_logo_path: str = Field(default="", alias="REPORT_LOGO_PATH")
+
     database_url: str = Field(
         default="",
         alias="DATABASE_URL",

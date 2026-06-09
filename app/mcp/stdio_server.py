@@ -16,9 +16,14 @@ from app.models.schemas import (
     AnalyzeAutocadComplianceRequest,
     AnalyzeComplianceRequest,
     AnalyzeRevitComplianceRequest,
+    ApplySuggestionsRequest,
     ComplianceChatRequest,
     EvaluateRoomRequest,
+    GenerateLayoutFromReportRequest,
+    GenerateGhostOverlayRequest,
+    IntelligentLayoutRequest,
     MCPToolCallRequest,
+    ReportDownloadRequest,
     ResolveZoneRequest,
 )
 
@@ -86,6 +91,50 @@ async def list_tools() -> list[Tool]:
             description="Check if room centroid overlaps Brahmasthan (center zone).",
             inputSchema=EvaluateRoomRequest.model_json_schema(),
         ),
+        Tool(
+            name="intelligent_layout_analyze",
+            description=(
+                "Full intelligent pipeline: 2D layout extract → Vastu compliance → "
+                "constrained correction → SVG layout images."
+            ),
+            inputSchema=IntelligentLayoutRequest.model_json_schema(),
+        ),
+        Tool(
+            name="extract_layout_geometry",
+            description="Extract rooms/walls/doors/windows from floor plan image or payload.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "image_base64": {"type": "string"},
+                    "image_media_type": {"type": "string", "default": "image/png"},
+                    "payload": {"type": "object"},
+                    "true_north_degrees": {"type": "number"},
+                },
+            },
+        ),
+        Tool(
+            name="generate_ghost_overlay",
+            description="Build ghost overlay + corrected layout JSON for CAD plugins.",
+            inputSchema=GenerateGhostOverlayRequest.model_json_schema(),
+        ),
+        Tool(
+            name="apply_layout_suggestions",
+            description="Apply Vastu suggestions to same 2D layout without editing source files.",
+            inputSchema=ApplySuggestionsRequest.model_json_schema(),
+        ),
+        Tool(
+            name="generate_layout_from_report",
+            description="Generate new 2D Vastu layout from report with Revit/AutoCAD I/O.",
+            inputSchema=GenerateLayoutFromReportRequest.model_json_schema(),
+        ),
+        Tool(
+            name="download_vastu_report",
+            description=(
+                "Downloadable Vastu report with company logo, 2D/3D comparison images, "
+                "and ZIP bundle."
+            ),
+            inputSchema=ReportDownloadRequest.model_json_schema(),
+        ),
     ]
     return [
         Tool(
@@ -113,6 +162,18 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     if name == "check_brahmasthan":
         result = thin.check_brahmasthan(EvaluateRoomRequest.model_validate(arguments))
         return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+    if name in {
+        "intelligent_layout_analyze",
+        "extract_layout_geometry",
+        "generate_ghost_overlay",
+        "apply_layout_suggestions",
+        "generate_layout_from_report",
+        "download_vastu_report",
+    }:
+        response = await bridge.call_tool(MCPToolCallRequest(tool=name, arguments=arguments))
+        payload = {"status": response.status, "result": response.result, "error": response.error}
+        return [TextContent(type="text", text=json.dumps(payload, indent=2, default=str))]
 
     response = await bridge.call_tool(MCPToolCallRequest(tool=name, arguments=arguments))
     payload = {"status": response.status, "result": response.result, "error": response.error}

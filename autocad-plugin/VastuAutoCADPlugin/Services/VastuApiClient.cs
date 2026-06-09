@@ -2,26 +2,55 @@ using System;
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
+using VastuAutoCADPlugin.Configuration;
 using VastuAutoCADPlugin.Models;
+using VastuAutoCADPlugin.Services.Abstractions;
 
 namespace VastuAutoCADPlugin.Services
 {
-    public class VastuApiClient
+    /// <summary>
+    /// Reusable HTTP client for Vastu Compliance REST API.
+    /// </summary>
+    public sealed class VastuApiClient : IVastuApiClient
     {
         private readonly string _baseUrl;
 
         public VastuApiClient()
+            : this(VastuPluginSettings.BaseUrl)
         {
-            string configured = Environment.GetEnvironmentVariable("VASTU_MCP_URL");
-            _baseUrl = string.IsNullOrWhiteSpace(configured) ? "http://127.0.0.1:8000" : configured.TrimEnd('/');
+        }
+
+        public VastuApiClient(string baseUrl)
+        {
+            _baseUrl = string.IsNullOrWhiteSpace(baseUrl)
+                ? VastuPluginSettings.BaseUrl
+                : baseUrl.TrimEnd('/');
         }
 
         public AnalyzeComplianceResponse AnalyzeAutocadLayout(AnalyzeAutocadRequest request)
         {
-            string endpoint = _baseUrl + "/api/v1/compliance/analyze/autocad";
+            return Post<AnalyzeAutocadRequest, AnalyzeComplianceResponse>(
+                "/api/v1/compliance/analyze/autocad",
+                request,
+                VastuPluginSettings.AnalyzeTimeout,
+                "AutoCAD analysis");
+        }
+
+        public GenerateLayoutFromReportResponse GenerateLayoutFromReport(GenerateLayoutFromReportRequest request)
+        {
+            return Post<GenerateLayoutFromReportRequest, GenerateLayoutFromReportResponse>(
+                "/api/v1/layout/generate-from-report",
+                request,
+                VastuPluginSettings.GenerateLayoutTimeout,
+                "Layout generation");
+        }
+
+        private TResponse Post<TRequest, TResponse>(string path, TRequest request, TimeSpan timeout, string operation)
+        {
+            string endpoint = _baseUrl + path;
             using (var client = new HttpClient())
             {
-                client.Timeout = TimeSpan.FromSeconds(60);
+                client.Timeout = timeout;
                 string payload = JsonConvert.SerializeObject(request);
                 using (var content = new StringContent(payload, Encoding.UTF8, "application/json"))
                 {
@@ -30,10 +59,16 @@ namespace VastuAutoCADPlugin.Services
                     if (!response.IsSuccessStatusCode)
                     {
                         throw new InvalidOperationException(
-                            "AutoCAD analysis failed with status " + (int)response.StatusCode + ": " + body
-                        );
+                            operation + " failed with status " + (int)response.StatusCode + ": " + body);
                     }
-                    return JsonConvert.DeserializeObject<AnalyzeComplianceResponse>(body);
+
+                    TResponse parsed = JsonConvert.DeserializeObject<TResponse>(body);
+                    if (parsed == null)
+                    {
+                        throw new InvalidOperationException(operation + " returned an empty response.");
+                    }
+
+                    return parsed;
                 }
             }
         }

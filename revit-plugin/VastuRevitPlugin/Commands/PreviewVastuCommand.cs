@@ -74,8 +74,8 @@ public class PreviewVastuCommand : IExternalCommand
         }
 
         builder.AppendLine();
-        builder.AppendLine("Cyan ghost outlines = proposed layout after remediation.");
-        builder.AppendLine("Use Apply Remediation to apply real changes, or Clear Ghost to remove preview.");
+        builder.AppendLine("Cyan ghost outlines = proposed shift (before state).");
+        builder.AppendLine("Use Result Layout for solid corrected floor plan, or Clear Preview to remove all.");
 
         TaskDialog.Show("Vastu Ghost Design Preview", builder.ToString());
         return Result.Succeeded;

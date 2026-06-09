@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import base64
+
 from fastapi import APIRouter, Depends
+from fastapi.responses import Response
 
 from app.api.deps import get_pipeline
 from app.models.schemas import (
@@ -14,14 +17,18 @@ from app.models.schemas import (
     ComplianceReport,
     KnowledgeIngestRequest,
     KnowledgeIngestResponse,
+    ReportDownloadRequest,
+    ReportDownloadResponse,
     RulesListResponse,
 )
 from app.services.report.html_generator import HtmlReportGenerator
+from app.services.report.report_export_service import ReportExportService
 from app.services.chat.assistant import ComplianceChatAssistant
 from app.services.compliance_pipeline import CompliancePipeline
 
 router = APIRouter(prefix="/api/v1/compliance", tags=["compliance"])
 _chat = ComplianceChatAssistant()
+_report_export = ReportExportService()
 
 
 @router.get("/rules", response_model=RulesListResponse)
@@ -95,3 +102,34 @@ async def export_html_report(report: ComplianceReport) -> dict[str, str]:
         "html": generator.generate(report),
         "filename": generator.save_path_hint(report.request_id),
     }
+
+
+@router.post("/report/download", response_model=ReportDownloadResponse)
+async def download_vastu_report(request: ReportDownloadRequest) -> ReportDownloadResponse:
+    """Build downloadable report package: HTML with logo, 2D/3D comparison, JSON, ZIP."""
+    bundle = _report_export.build_download_bundle(
+        request.report,
+        project_name=request.project_name,
+    )
+    return ReportDownloadResponse(
+        filename=bundle.filename,
+        html=bundle.html,
+        zip_base64=bundle.zip_base64,
+        assets=bundle.assets,
+    )
+
+
+@router.post("/report/download/zip")
+async def download_vastu_report_zip(request: ReportDownloadRequest) -> Response:
+    """Return report bundle as a ZIP file attachment."""
+    bundle = _report_export.build_download_bundle(
+        request.report,
+        project_name=request.project_name,
+    )
+    zip_bytes = base64.b64decode(bundle.zip_base64)
+    zip_name = bundle.filename.replace(".html", ".zip")
+    return Response(
+        content=zip_bytes,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{zip_name}"'},
+    )
